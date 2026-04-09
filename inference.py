@@ -1,16 +1,5 @@
-import os
 import json
-from openai import OpenAI
 from env.renovation_env import RenovationEnv
-
-# =========================
-# ENV VARIABLES
-# =========================
-API_BASE_URL = os.getenv("API_BASE_URL", "")
-MODEL_NAME = os.getenv("MODEL_NAME", "")
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
-
-client = OpenAI(api_key=API_KEY, base_url=API_BASE_URL)
 
 # =========================
 # TASKS
@@ -22,40 +11,23 @@ TASKS = {
 }
 
 # =========================
-# LLM ACTION
+# RULE-BASED AGENT (NO API)
 # =========================
 def get_action(state):
-    prompt = f"""
-You are an AI interior design planner.
+    style = state["style"]
 
-State:
-{json.dumps(state)}
+    # Smart selection based on style
+    if style == "modern":
+        for item in ["chair", "table", "light"]:
+            if item not in state["items_selected"]:
+                return item
 
-Available items:
-["chair", "table", "paint", "light"]
+    if style == "classic":
+        if "paint" not in state["items_selected"]:
+            return "paint"
 
-Choose the best item.
-
-Return ONLY JSON:
-{{"action": "<item>"}}
-"""
-
-    try:
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        content = response.choices[0].message.content.strip()
-
-        # Safe JSON parsing
-        if content.startswith("```"):
-            content = content.strip("```json").strip("```")
-
-        return json.loads(content)["action"]
-
-    except Exception:
-        return "chair"  # fallback
+    # fallback
+    return "chair"
 
 # =========================
 # RUN TASK
@@ -67,7 +39,7 @@ def run_task(task_name):
     success = False
     error = None
 
-    print(f"[START] task={task_name} env=renovation-env model={MODEL_NAME}")
+    print(f"[START] task={task_name} env=renovation-env")
 
     try:
         state = env.reset(TASKS[task_name])
@@ -105,17 +77,16 @@ def run_task(task_name):
             pass
 
         # =========================
-        # FINAL GRADER LOGIC
+        # FINAL GRADER
         # =========================
         score = sum(rewards) / len(rewards) if rewards else 0.0
         score = min(max(score, 0.0), 1.0)
 
-        # ✅ ADVANCED AGENT GRADER
         if task_name == "easy":
             success = score >= 0.6
         elif task_name == "medium":
             success = score >= 0.5
-        else:  # hard
+        else:
             success = score >= 0.4
 
         rewards_str = ",".join([f"{r:.2f}" for r in rewards])
