@@ -9,8 +9,5 @@ dependencies = [
     "openenv-core>=0.2.0"
 ]
 
-[project.scripts]
-server = "app:app"
-
 [tool.openenv]
-entrypoint = "app:app"
+entrypoint = "server.app:main"
