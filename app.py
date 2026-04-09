@@ -3,26 +3,17 @@ from pydantic import BaseModel
 from env.renovation_env import RenovationEnv
 
 app = FastAPI()
-
 env = RenovationEnv()
 
-
-# =========================
-# Request Models
-# =========================
+# ✅ Request models
 class ResetRequest(BaseModel):
     budget: int
     style: str
 
-
 class StepRequest(BaseModel):
     action: str
 
-
-# =========================
-# ENDPOINTS
-# =========================
-
+# ✅ RESET FIXED
 @app.post("/reset")
 def reset(req: ResetRequest):
     state = env.reset({
@@ -31,7 +22,7 @@ def reset(req: ResetRequest):
     })
     return {"state": state}
 
-
+# ✅ STEP
 @app.post("/step")
 def step(req: StepRequest):
     state, reward, done, info = env.step(req.action)
@@ -42,13 +33,12 @@ def step(req: StepRequest):
         "info": info
     }
 
-
+# ✅ STATE
 @app.get("/state")
 def get_state():
     return {"state": env.state()}
 
-
-# Optional (for browser root)
+# ✅ ROOT (optional)
 @app.get("/")
-def home():
+def root():
     return {"message": "API running"}
