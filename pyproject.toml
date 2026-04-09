@@ -1,7 +1,6 @@
 [project]
 name = "renovation-env"
 version = "0.1.0"
-description = "AI Renovation Environment"
 dependencies = [
     "fastapi",
     "uvicorn",
@@ -9,5 +8,8 @@ dependencies = [
     "openenv-core>=0.2.0"
 ]
 
+[project.scripts]
+server = "server.app:main"
+
 [tool.openenv]
-entrypoint = "server.app:main"
+entrypoint = "app:app"
