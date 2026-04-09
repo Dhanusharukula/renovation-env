@@ -1,9 +1,16 @@
 [project]
 name = "renovation-env"
 version = "0.1.0"
-description = "AI Renovation Environment using OpenEnv"
-authors = [{name = "Your Name"}]
-dependencies = []
+description = "AI Renovation Environment"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "openenv-core>=0.2.0"
+]
+
+[project.scripts]
+server = "app:app"
 
 [tool.openenv]
 entrypoint = "app:app"
