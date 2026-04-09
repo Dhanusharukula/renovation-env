@@ -1,0 +1,9 @@
+[project]
+name = "renovation-env"
+version = "0.1.0"
+description = "AI Renovation Environment using OpenEnv"
+authors = [{name = "Your Name"}]
+dependencies = []
+
+[tool.openenv]
+entrypoint = "app:app"
