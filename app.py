@@ -1,28 +1,28 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import Optional
 from env.renovation_env import RenovationEnv
 
 app = FastAPI()
 env = RenovationEnv()
 
-# ✅ Request models
+# ✅ OPTIONAL fields (IMPORTANT FIX)
 class ResetRequest(BaseModel):
-    budget: int
-    style: str
+    budget: Optional[int] = 30000
+    style: Optional[str] = "modern"
 
 class StepRequest(BaseModel):
     action: str
 
-# ✅ RESET FIXED
+# ✅ FIXED RESET (handles missing body)
 @app.post("/reset")
-def reset(req: ResetRequest):
+def reset(req: ResetRequest = ResetRequest()):
     state = env.reset({
         "budget": req.budget,
         "style": req.style
     })
     return {"state": state}
 
-# ✅ STEP
 @app.post("/step")
 def step(req: StepRequest):
     state, reward, done, info = env.step(req.action)
@@ -33,12 +33,10 @@ def step(req: StepRequest):
         "info": info
     }
 
-# ✅ STATE
 @app.get("/state")
 def get_state():
     return {"state": env.state()}
 
-# ✅ ROOT (optional)
 @app.get("/")
 def root():
     return {"message": "API running"}
